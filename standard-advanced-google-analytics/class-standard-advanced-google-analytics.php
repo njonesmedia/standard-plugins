@@ -1,168 +1,196 @@
 <?php
-/*
-Plugin Name: Standard Advanced Google Analytics
-Plugin URI: http://github.com/eightbit/standard-advanced-google-analytics/
-Description: Introduces support for "Multiple top-level domains" and "Display Advertiser Support" into the Standard dashboard.
-Version: 1.0
-Author: 8BIT
-License:
-
-  Copyright 2013 8BIT, LLC (info@8bit.io)
-
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License, version 2, as
-  published by the Free Software Foundation.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-*/
-
-if( ! defined( 'STANDARD_ADVANCED_GOOGLE_ANALYTICS' ) ) {
-	define( 'STANDARD_ADVANCED_GOOGLE_ANALYTICS', '1.0' );
-} // end if
+/**
+ * Standard Advanced Google Analytics
+ *
+ * @package   Standard Advanced Google Analytics
+ * @author    8BIT <info@8bit.io>
+ * @license   GPL-2.0+
+ * @link      http://8bit.io
+ * @copyright 2013 8BIT
+ */
 
 /**
- * @version		1.0
- * @since		3.3
+ * Standard Advanced Google Analytics
+ *
+ * @package   Standard Advanced Google Analytics
+ * @author    8BIT <info@8bit.io>
  */
 class Standard_Advanced_Google_Analytics {
-	
+
 	/*--------------------------------------------------------*
 	 * Attributes
 	 *--------------------------------------------------------*/
 
-	 /** Static property to hold our singleton instance */
+	/**
+	 * Instance of this class.
+	 *
+	 * @since    1.0.0
+	 *
+	 * @var      object
+	 */
 	 private static $instance = null;
+
+	/**
+	 * Plugin version, used for cache-busting of style and script file references.
+	 *
+	 * @since   1.0.0
+	 *
+	 * @var     string
+	 */
+	 private $version = '1.0.0';
 
 	/*--------------------------------------------------------*
 	 * Constructor
 	 *--------------------------------------------------------*/
 
 	/**
-	 * Initializes the widget's classname, description, and JavaScripts.
-	 */  	
+	 * Returns an instance of this class.
+	 *
+	 * @since     1.0.0
+	 * @return    Standard_Advanced_Google_Analytics
+	 */
 	 public function get_instance() {
-		 
-		 // Get an instance of the 
+
+		 // Get an instance of the
 		 if( null == self::$instance ) {
 			 self::$instance = new self;
 		 } // end if
-		 
+
 		 return self::$instance;
-		 
+
 	 } // end get_instance
 
 	/**
-	 * Initializes the widget's classname, description, and more
-	 */  		
+	 * Return an instance of this class.
+	 *
+	 * @since     1.0.0
+	 *
+	 * @return    object    A single instance of this class.
+	 */
 	 private function __construct() {
-		
+
 		// Load plugin textdomain
-		add_action( 'init', array( $this, 'plugin_textdomain' ) );
-		
+		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
+
 		// Introduce the administration JavaScript
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ) );
-		
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+
 		// Introduce the new admin fields
-		add_action( 'admin_init', array( $this, 'advanced_google_analytics' ) );
-		
-		add_action( 'admin_notices', array( $this, 'plugin_activation' ) ) ;
-		
+		add_action( 'admin_init', array( $this, 'load_advanced_google_analytics' ) );
+
+		// Display the notification of where th new fields are located
+		add_action( 'admin_notices', array( $this, 'activate' ) ) ;
+
 	 } // end constructor
-	 
+
 	/*--------------------------------------------------------*
 	 * Functions
 	 *--------------------------------------------------------*/
-	 
-	 /**
-	  * Defines the plugin textdomain.
-	  */
-	 public function plugin_textdomain() {
-		 
+
+	/**
+	 * Loads the plugin text domain.
+	 *
+	 * @since     1.0.0
+	 */
+	 public function load_plugin_textdomain() {
+
 		$domain = 'standard-advanced-google-analytics';
 		$locale = apply_filters( 'standard-advanced-google-analytics', get_locale(), $domain );
-		
+
         load_textdomain( $domain, WP_LANG_DIR . '/' . $domain . '/' . $domain . '-' . $locale . '.mo' );
         load_plugin_textdomain( $domain, FALSE, dirname( plugin_basename( __FILE__ ) ) . '/lang/' );
-		 
+
 	} // end plugin_textdomain
-	
+
 	/**
 	 * Loads the JavaScript responsible for placing the Advanced Google Analytics options below the default
 	 * option that comes included with Standard.
+	 *
+	 * @since     1.0.0
 	 */
-	public function admin_scripts() {
-		
+	public function enqueue_admin_scripts() {
+
 		$screen = get_current_screen();
 		if ('toplevel_page_theme_options' == $screen->id ) {
-			wp_enqueue_script( 'standard-advanced-google-analytics', plugins_url( 'js/admin.min.js', __FILE__ ), array( 'jquery' ), STANDARD_ADVANCED_GOOGLE_ANALYTICS );
+			wp_enqueue_script( 'standard-advanced-google-analytics', plugins_url( 'js/admin.min.js', __FILE__ ), array( 'jquery' ), $this->version );
 		} // end if
-		
-	} // end admin_scripts
-	
+
+	} // end enqueue_admin_scripts
+
 	/**
-	 * Saves the version of the plugin to the database and displays an activation notice on where users 
+	 * Saves the version of the plugin to the database and displays an activation notice on where users
 	 * can access the new options.
+	 *
+	 * @since     1.0.0
 	 */
-	public function plugin_activation() {
-		
-		if( STANDARD_ADVANCED_GOOGLE_ANALYTICS != get_option( 'standard_advanced_google_analytics' ) ) {
-		
-			add_option( 'standard_advanced_google_analytics', STANDARD_ADVANCED_GOOGLE_ANALYTICS );
-			
+	public function activate() {
+
+		if( $this->version != get_option( 'standard_advanced_google_analytics' ) ) {
+
+			add_option( 'standard_advanced_google_analytics', $this->version );
+
 			$html = '<div class="updated">';
 				$html .= '<p>';
 					$html .= __( 'The Advanced Google Analytics are available <a href="admin.php?page=theme_options&tab=standard_theme_global_options">on this page</a>.', 'standard' );
 				$html .= '</p>';
 			$html .= '</div><!-- /.updated -->';
-			
+
 			echo $html;
-			
+
 		} // end if
-		
-	} // end plugin_activation
-	
+
+	} // end activate
+
 	/**
 	 * Deletes the option from the database. Optionally displays an error message if there is a
 	 * problem deleting the option.
+	 *
+	 * @since     1.0.0
 	 */
-	public static function plugin_deactivation() {
-		
-		// Display an error message if the option isn't properly deleted.			
+	public static function deactivate() {
+
+		// Delete the Advanced Google Analytics from the Global Options
+		$options = get_option( 'standard_theme_global_options' );
+		foreach( $options as $key => $value ) {
+
+			$key = strtolower( $key );
+			if( 'google_analytics_domain' == $key || 'google_analytics_linker' == $key ) {
+				unset( $options[ $key ] );
+			} // end if
+
+		} // end foreach
+		update_option ( 'standard_theme_global_options', $options );
+
+		// Display an error message if the option isn't properly deleted.
 		if( false == delete_option( 'standard_advanced_google_analytics' ) ) {
-		
+
 			$html = '<div class="error">';
 				$html .= '<p>';
 					$html .= __( 'There was a problem deactivating the Advanced Google Analytics Plugin. Please try again.', 'standard' );
 				$html .= '</p>';
 			$html .= '</div><!-- /.updated -->';
-			
+
 			echo $html;
-			
+
 		} // end if/else
 
-	} // end plugin_deactivation
-	
+	} // end activate
+
 	/*--------------------------------------------------------*
 	 * Settings API
 	 *--------------------------------------------------------*/
-	
+
 	/**
 	 * Adds the two new settings fields to the Standard Theme General Options.
+	 *
+	 * @since     1.0.0
 	 */
-	public function advanced_google_analytics() {
-		
+	public function load_advanced_google_analytics() {
+
 		add_settings_field(
 			'google_analytics_domain_name',
 			__( 'Google Analytics Domain Name', 'standard' ),
-			array( $this, 'google_analytics_domain_name_display' ),
+			array( $this, 'display_google_analytics_domain_name' ),
 			'standard_theme_global_options',
 			'global'
 		);
@@ -170,63 +198,55 @@ class Standard_Advanced_Google_Analytics {
 		add_settings_field(
 			'google_analytics_allow_linker',
 			__( 'Google Analytics Allow Linker', 'standard' ),
-			array( $this, 'google_analytics_allow_linker_display' ),
+			array( $this, 'display_google_analytics_allow_linker' ),
 			'standard_theme_global_options',
 			'global'
-			
+
 		);
-		
-	} // end advanced_google_analytics
-	
+
+	} // end load_advanced_google_analytics
+
 	/**
 	 * Displays the option for introducing the Google Analytics Domain.
+	 *
+	 * @since     1.0.0
 	 */
-	public function google_analytics_domain_name_display() {
-	
+	public function display_google_analytics_domain_name() {
+
 		$options = get_option( 'standard_theme_global_options' );
-		
+
 		$domain = '';
 		if( isset( $options['google_analytics_domain'] ) ) {
 			$domain = $options['google_analytics_domain'];
 		} // end if
-		
-		echo '<input type="text" name="standard_theme_global_options[google_analytics_domain]" id="standard_theme_global_options[google_analytics_domain]" value="' . $domain . '" placeholder="' . get_bloginfo( 'siteurl' ) . '" />';
-		
-		
-	} // end google_analytics_domain_name_display
-	
+
+		echo '<input type="text" name="standard_theme_global_options[google_analytics_domain]" id="standard_theme_global_options[google_analytics_domain]" value="' . $domain . '" placeholder="' . get_bloginfo( 'url' ) . '" />';
+
+
+	} // end display_google_analytics_domain_name
+
 	/**
 	 * Displays the option for introducing the Google Analytics Linker.
+	 *
+	 * @since     1.0.0
 	 */
-	public function google_analytics_allow_linker_display() {
-		
+	public function display_google_analytics_allow_linker() {
+
 		$options = get_option( 'standard_theme_global_options' );
-		
+
 		$linker = '';
 		if( isset( $options['google_analytics_linker'] ) ) {
 			$linker = $options['google_analytics_linker'];
 		} // end if
-		
+
 		$html = '<label for="standard_theme_global_options[google_analytics_linker]">';
 			$html .= '<input type="checkbox" name="standard_theme_global_options[google_analytics_linker]" id="standard_theme_global_options[google_analytics_linker]" value="1"' . checked( 1, $linker, false ) . ' />';
 			$html .= '&nbsp;';
 			$html .= __( 'Display the linker in the header', 'standard-advanced-google-analytics' );
 		$html .= '</label>';
-		
+
 		echo $html;
-		
+
 	} // end google_analytics_allow_linker_display
-	
+
 } // end class
-
-/**
- * Instantiates the plugin using the plugins_loaded hook and the 
- * Singleton Pattern.
- */
-function Standard_Advanced_Google_Analytics() {
-	Standard_Advanced_Google_Analytics::get_instance();
-} // end Comments_Not_Replied_To
-add_action( 'plugins_loaded', 'Standard_Advanced_Google_Analytics' );
-
-// Registers the new deactivation hook
-register_deactivation_hook( __FILE__, array( 'Standard_Advanced_Google_Analytics', 'plugin_deactivation' ) );
