@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Standard Google Analytics Advanced\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-04-16 21:29-0500\n"
-"PO-Revision-Date: 2013-04-16 21:29-0500\n"
+"POT-Creation-Date: 2013-05-17 10:27-0500\n"
+"PO-Revision-Date: 2013-05-17 10:27-0500\n"
 "Last-Translator: Tom McFarlin <tom@tommcfarlin.com>\n"
 "Language-Team: Tom McFarlin <tom@8bit.io>\n"
 "Language: en_US\n"
@@ -16,26 +16,26 @@ msgstr ""
 "X-Generator: Poedit 1.5.5\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../plugin.php:122
+#: ../class-standard-advanced-google-analytics.php:132
 msgid ""
 "The Advanced Google Analytics are available <a href=\"admin.php?"
 "page=theme_options&tab=standard_theme_global_options\">on this page</a>."
 msgstr ""
 
-#: ../plugin.php:143
+#: ../class-standard-advanced-google-analytics.php:167
 msgid ""
 "There was a problem deactivating the Advanced Google Analytics Plugin. "
 "Please try again."
 msgstr ""
 
-#: ../plugin.php:164
+#: ../class-standard-advanced-google-analytics.php:190
 msgid "Google Analytics Domain Name"
 msgstr ""
 
-#: ../plugin.php:172
+#: ../class-standard-advanced-google-analytics.php:198
 msgid "Google Analytics Allow Linker"
 msgstr ""
 
-#: ../plugin.php:213
+#: ../class-standard-advanced-google-analytics.php:243
 msgid "Display the linker in the header"
 msgstr ""
